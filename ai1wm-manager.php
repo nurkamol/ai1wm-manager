@@ -3,7 +3,7 @@
  * Plugin Name: All-in-One WP Migration Manager
  * Plugin URI: https://github.com/nurkamol/ai1wm-manager
  * Description: Complete management solution for All-in-One WP Migration plugin - manage extension versions, export/import settings, and configure plugin options with enhanced security and backup features.
- * Version: 3.0.0
+ * Version: 3.1.0
  * Author: Nurkamol Vakhidov
  * Author URI: https://nurkamol.com
  * Requires at least: 5.0
@@ -22,7 +22,7 @@ class AI1WM_Manager {
     
     private $plugin_slug = 'ai1wm-manager';
     private $nonce_action = 'ai1wm_manager_action';
-    private $version = '3.0.0';
+    private $version = '3.1.0';
     
     // Extension versions from the provided list
     private $extension_versions = array(
@@ -203,6 +203,59 @@ class AI1WM_Manager {
             .ai1wm-manager .tab-content.active {
                 display: block;
             }
+            .ai1wm-manager .backup-item {
+                background: #f9f9f9;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                padding: 15px;
+                margin: 10px 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+            .ai1wm-manager .backup-info {
+                flex-grow: 1;
+            }
+            .ai1wm-manager .backup-actions {
+                display: flex;
+                gap: 10px;
+            }
+            .ai1wm-manager .backup-date {
+                font-weight: bold;
+                color: #333;
+            }
+            .ai1wm-manager .backup-type {
+                color: #666;
+                font-size: 0.9em;
+            }
+            .ai1wm-manager .backup-list {
+                max-height: 400px;
+                overflow-y: auto;
+            }
+            .ai1wm-manager .remove-backup-btn {
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 5px 10px;
+                border-radius: 3px;
+                cursor: pointer;
+                font-size: 12px;
+            }
+            .ai1wm-manager .remove-backup-btn:hover {
+                background: #c82333;
+            }
+            .ai1wm-manager .remove-all-btn {
+                background: #dc3545;
+                color: white;
+                border: none;
+                padding: 8px 15px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-bottom: 15px;
+            }
+            .ai1wm-manager .remove-all-btn:hover {
+                background: #c82333;
+            }
         ');
     }
 
@@ -241,6 +294,12 @@ class AI1WM_Manager {
             case 'backup_settings':
                 $this->handle_backup_settings();
                 break;
+            case 'remove_backup':
+                $this->handle_remove_backup();
+                break;
+            case 'remove_all_backups':
+                $this->handle_remove_all_backups();
+                break;
         }
     }
 
@@ -264,7 +323,7 @@ class AI1WM_Manager {
             delete_option($entry['option_name']);
         }
         
-        update_option('ai1wm_complete_manager_cleaned_duplicates', true);
+        update_option('ai1wm_manager_cleaned_duplicates', true);
     }
 
     /**
@@ -280,6 +339,7 @@ class AI1WM_Manager {
         $settings = $this->get_ai1wm_settings(true);
         $total_settings = count($settings);
         $active_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'overview';
+        $all_backups = $this->get_all_backups();
 
         ?>
         <div class="wrap ai1wm-manager">
@@ -346,8 +406,48 @@ class AI1WM_Manager {
                                 <?php endif; ?>
                             </td>
                         </tr>
+                        <tr>
+                            <th>Total Backups</th>
+                            <td><?php echo count($all_backups); ?> backups</td>
+                        </tr>
                     </table>
                 </div>
+                
+                <?php if (!empty($all_backups)): ?>
+                <div class="form-section">
+                    <h2>💾 Backup Management</h2>
+                    <p>Manage your existing backups. You can remove individual backups or clear all backups at once.</p>
+                    
+                    <form method="post" style="display: inline;">
+                        <?php wp_nonce_field($this->nonce_action); ?>
+                        <input type="hidden" name="action" value="remove_all_backups">
+                        <button type="submit" class="remove-all-btn" onclick="return confirm('Are you sure you want to remove ALL backups? This action cannot be undone.')">
+                            🗑️ Remove All Backups (<?php echo count($all_backups); ?>)
+                        </button>
+                    </form>
+                    
+                    <div class="backup-list">
+                        <?php foreach ($all_backups as $backup): ?>
+                            <div class="backup-item">
+                                <div class="backup-info">
+                                    <div class="backup-date"><?php echo esc_html(date('Y-m-d H:i:s', $backup['timestamp'])); ?></div>
+                                    <div class="backup-type"><?php echo esc_html($backup['type']); ?></div>
+                                </div>
+                                <div class="backup-actions">
+                                    <form method="post" style="display: inline;">
+                                        <?php wp_nonce_field($this->nonce_action); ?>
+                                        <input type="hidden" name="action" value="remove_backup">
+                                        <input type="hidden" name="backup_key" value="<?php echo esc_attr($backup['option_name']); ?>">
+                                        <button type="submit" class="remove-backup-btn" onclick="return confirm('Remove this backup?')">
+                                            🗑️ Remove
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    </div>
+                </div>
+                <?php endif; ?>
             </div>
 
             <!-- Extensions Tab -->
@@ -418,6 +518,12 @@ class AI1WM_Manager {
         <?php if (isset($_GET['revert']) && $_GET['revert'] == 'success'): ?>
             <div class="notice notice-success is-dismissible">
                 <p>Extension versions have been reverted to backup successfully.</p>
+            </div>
+        <?php endif; ?>
+        
+        <?php if (isset($_GET['backup_removed']) && $_GET['backup_removed'] == 'success'): ?>
+            <div class="notice notice-success is-dismissible">
+                <p>Backup removed successfully.</p>
             </div>
         <?php endif; ?>
         
@@ -513,7 +619,8 @@ class AI1WM_Manager {
         
         <div class="form-section">
             <h2>📥 Export Settings</h2>
-            <p>Export your AI1WM settings to a JSON file for backup or transfer purposes.</p>
+            <p>Export your AI1WM plugin settings and configurations to a JSON file for backup or transfer purposes.</p>
+            <p><strong>Note:</strong> Site-specific data (backup paths, security keys, timestamps) and extension versioning data are automatically excluded for clean, portable exports.</p>
             
             <form method="post">
                 <?php wp_nonce_field($this->nonce_action); ?>
@@ -544,8 +651,8 @@ class AI1WM_Manager {
         <div class="form-section">
             <h2>📤 Import Settings</h2>
             <div class="warning">
-                <strong>⚠️ Warning:</strong> Importing settings will overwrite your current AI1WM configuration. 
-                A backup will be created automatically before import.
+                <strong>⚠️ Warning:</strong> Importing settings will overwrite your current AI1WM plugin configuration. 
+                A backup will be created automatically before import. Extension versioning data will be preserved and not affected by imports.
             </div>
             
             <form method="post" enctype="multipart/form-data">
@@ -570,7 +677,8 @@ class AI1WM_Manager {
         
         <div class="form-section">
             <h2>💾 Create Backup</h2>
-            <p>Create a complete backup of your current AI1WM settings.</p>
+            <p>Create a complete backup of your current AI1WM plugin settings and configurations.</p>
+            <p><strong>Note:</strong> This creates a settings-only backup. Extension versioning data is managed separately in the Extensions tab.</p>
             
             <form method="post">
                 <?php wp_nonce_field($this->nonce_action); ?>
@@ -585,7 +693,7 @@ class AI1WM_Manager {
         <?php if ($total_settings > 0): ?>
         <div class="form-section">
             <h2>📄 Current Settings (<?php echo $total_settings; ?> found)</h2>
-            <p>Below are your current AI1WM settings. <strong>Note:</strong> Sensitive data is automatically redacted in this view for security.</p>
+            <p>Below are your current AI1WM settings. <strong>Note:</strong> Site-specific data (backup paths, security keys, timestamps) and sensitive data are automatically excluded from this view for security and portability.</p>
             <pre><?php echo esc_html(print_r($settings, true)); ?></pre>
         </div>
         <?php endif; ?>
@@ -817,6 +925,7 @@ class AI1WM_Manager {
             }
             
             if ($this->is_dangerous_option($option_name) || 
+                $this->is_extension_versioning_option($option_name) ||
                 strpos($option_name, 'ai1wm_inspector_backup_') === 0 ||
                 strpos($option_name, 'ai1wm_manager_backup_') === 0 ||
                 strpos($option_name, '_backup_') !== false) {
@@ -914,11 +1023,13 @@ class AI1WM_Manager {
                  WHERE option_name LIKE %s 
                  AND option_name NOT LIKE %s 
                  AND option_name NOT LIKE %s
+                 AND option_name NOT LIKE %s
                  AND option_name NOT LIKE %s",
                 '%ai1wm%',
                 'ai1wm_inspector_backup_%',
                 'ai1wm_manager_backup_%',
-                'ai1wm_manager_settings_backup_%'
+                'ai1wm_manager_settings_backup_%',
+                'ai1wm_manager_cleaned_duplicates'
             ),
             ARRAY_A
         );
@@ -927,7 +1038,18 @@ class AI1WM_Manager {
         foreach ($results as $row) {
             $value = maybe_unserialize($row['option_value']);
             
+            // Skip backup-related options
             if (strpos($row['option_name'], '_backup_') !== false) {
+                continue;
+            }
+            
+            // Skip extension versioning and plugin management options
+            if ($this->is_extension_versioning_option($row['option_name'])) {
+                continue;
+            }
+            
+            // Skip dangerous/site-specific options from export and display
+            if ($this->is_dangerous_option($row['option_name'])) {
                 continue;
             }
             
@@ -997,6 +1119,27 @@ class AI1WM_Manager {
     }
 
     /**
+     * Check if option is related to extension versioning
+     */
+    private function is_extension_versioning_option($option_name) {
+        $versioning_patterns = array(
+            'ai1wm_manager_backup',
+            'ai1wm_manager_cleaned_duplicates',
+            'ai1wm_complete_manager_backup', 
+            'ai1wm_complete_manager_cleaned_duplicates',
+            'ai1wm_settings_manager_cleaned_duplicates'
+        );
+        
+        foreach ($versioning_patterns as $pattern) {
+            if (strpos($option_name, $pattern) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    /**
      * Check if option is dangerous
      */
     private function is_dangerous_option($option_name) {
@@ -1011,6 +1154,20 @@ class AI1WM_Manager {
             }
         }
         
+        // Site-specific options that shouldn't be imported
+        $site_specific_options = array(
+            'ai1wm_backups_path',           // Server-specific backup path
+            'ai1wm_backups_labels',         // Site-specific backup file references
+            'ai1wmfe_ftp_timestamp',        // Last backup timestamp
+            'ai1wm_secret_key',             // Site-specific security key
+            'ai1wmue_eula_accepted_by',     // User ID from source site
+            '_site_transient_ai1wm_last_check_for_updates' // Update check timestamp
+        );
+        
+        if (in_array($option_name, $site_specific_options)) {
+            return true;
+        }
+        
         return false;
     }
 
@@ -1023,8 +1180,91 @@ class AI1WM_Manager {
                    esc_attr($type), wp_kses_post($message));
         });
     }
+
+    /**
+     * Get all backups (both extension and settings backups)
+     */
+    private function get_all_backups() {
+        global $wpdb;
+        
+        $backups = $wpdb->get_results(
+            "SELECT option_name, option_value FROM {$wpdb->options} 
+             WHERE option_name LIKE 'ai1wm_manager_backup_%' 
+             OR option_name LIKE 'ai1wm_manager_settings_backup_%'
+             ORDER BY option_name DESC",
+            ARRAY_A
+        );
+        
+        $formatted_backups = array();
+        foreach ($backups as $backup) {
+            // Extract timestamp from option name
+            if (preg_match('/(\d+)$/', $backup['option_name'], $matches)) {
+                $timestamp = $matches[1];
+                $type = (strpos($backup['option_name'], 'settings_backup') !== false) ? 'Settings Backup' : 'Extension Backup';
+                
+                $formatted_backups[] = array(
+                    'option_name' => $backup['option_name'],
+                    'timestamp' => $timestamp,
+                    'type' => $type,
+                    'data' => $backup['option_value']
+                );
+            }
+        }
+        
+        return $formatted_backups;
+    }
+
+    /**
+     * Handle individual backup removal
+     */
+    public function handle_remove_backup() {
+        if (!isset($_POST['backup_key'])) {
+            $this->add_admin_notice('No backup specified for removal.', 'error');
+            return;
+        }
+        
+        $backup_key = sanitize_text_field($_POST['backup_key']);
+        
+        // Verify the backup exists and belongs to our plugin
+        if (strpos($backup_key, 'ai1wm_manager_') !== 0) {
+            $this->add_admin_notice('Invalid backup key.', 'error');
+            return;
+        }
+        
+        if (delete_option($backup_key)) {
+            $this->add_admin_notice('Backup removed successfully.', 'success');
+        } else {
+            $this->add_admin_notice('Failed to remove backup.', 'error');
+        }
+    }
+
+    /**
+     * Handle removal of all backups
+     */
+    public function handle_remove_all_backups() {
+        global $wpdb;
+        
+        $backup_options = $wpdb->get_results(
+            "SELECT option_name FROM {$wpdb->options} 
+             WHERE option_name LIKE 'ai1wm_manager_backup_%' 
+             OR option_name LIKE 'ai1wm_manager_settings_backup_%'",
+            ARRAY_A
+        );
+        
+        $removed_count = 0;
+        foreach ($backup_options as $option) {
+            if (delete_option($option['option_name'])) {
+                $removed_count++;
+            }
+        }
+        
+        if ($removed_count > 0) {
+            $this->add_admin_notice("Successfully removed {$removed_count} backup(s).", 'success');
+        } else {
+            $this->add_admin_notice('No backups found to remove.', 'warning');
+        }
+    }
 }
 
 // Initialize the plugin
 new AI1WM_Manager();
-        

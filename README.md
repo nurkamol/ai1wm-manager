@@ -1,7 +1,7 @@
 # All-in-One WP Migration Manager
 
 ![WordPress Plugin Version](https://img.shields.io/badge/WordPress-5.0%2B-blue)
-![Plugin Version](https://img.shields.io/badge/Version-3.0.0-green)
+![Plugin Version](https://img.shields.io/badge/Version-3.1.0-green)
 ![License](https://img.shields.io/badge/License-GPL%20v2-orange)
 
 Complete management solution for All-in-One WP Migration plugin - manage extension versions, export/import settings, and configure plugin options with enhanced security and backup features.
@@ -15,18 +15,25 @@ Complete management solution for All-in-One WP Migration plugin - manage extensi
 - **Support for 22+ Extensions**: Including Dropbox, Google Drive, FTP, S3, OneDrive, and more
 
 ### ⚙️ Settings Manager
-- **Export/Import**: Transfer AI1WM settings between sites
+- **Export/Import**: Transfer AI1WM settings between sites with smart filtering
 - **Automatic Backups**: Creates backups before imports
+- **Clean Exports**: Site-specific data automatically excluded for portability
 - **Data Redaction**: Optional sensitive data protection
-- **Clean Format**: Optimized JSON output without bloated metadata
-- **Metadata Support**: Include export information for better tracking
+- **Safe Imports**: Enhanced validation prevents importing dangerous options
+
+### 💾 Advanced Backup Management
+- **Individual Backup Removal**: Remove specific backups with confirmation dialogs
+- **Bulk Backup Cleanup**: Clear all backups at once with safety confirmations
+- **Visual Backup List**: Organized display with timestamps and backup types
+- **Real-time Counter**: See total backup count in system status
+- **Automatic Cleanup**: Maintains only the last 5 backups per type
 
 ### 🔒 Security Features
-- **Sensitive Data Protection**: Automatic redaction of passwords, keys, and tokens
-- **Safe Import**: Filters dangerous options during import
-- **Backup Verification**: Multiple backup layers for safety
-- **Nonce Protection**: Secure form submissions
-- **File Validation**: Proper file type and size validation
+- **Smart Data Filtering**: Site-specific paths, keys, and timestamps automatically excluded
+- **Safe Import Protection**: Filters dangerous options during import
+- **Enhanced Validation**: Proper file type, size, and content validation
+- **Nonce Protection**: Secure form submissions with capability checks
+- **Data Isolation**: Complete separation of local vs. transferable data
 
 ## 📋 Requirements
 
@@ -88,20 +95,25 @@ Navigate to **Tools → AI1WM Manager** in your WordPress admin panel.
 
 ## 🛡️ Security
 
-- **Data Redaction**: Automatically removes sensitive information from exports
-- **Safe Imports**: Filters out dangerous WordPress options
-- **Backup Protection**: Multiple backup layers prevent data loss
-- **Secure Processing**: Nonce verification and capability checks
-- **File Validation**: Proper file type and size validation
+- **Smart Data Filtering**: Automatically excludes site-specific paths, security keys, and timestamps
+- **Safe Imports**: Enhanced validation filters out dangerous WordPress options
+- **Backup Protection**: Individual and bulk backup management with confirmations
+- **Secure Processing**: Nonce verification and capability checks for all operations
+- **File Validation**: Proper type, size, and content validation for uploads
+- **Data Portability**: Clean exports that work safely across different sites
 
 ## 🔄 Backup Strategy
 
-The plugin implements a comprehensive backup strategy:
+The plugin implements a comprehensive backup strategy with advanced management:
 
 1. **Extension Backups**: File-level backups of extension configurations
-2. **Settings Backups**: Database-level backups of AI1WM settings
-3. **Automatic Cleanup**: Maintains only the last 5 backups
-4. **Import Protection**: Creates backups before any import operation
+2. **Settings Backups**: Database-level backups of AI1WM settings  
+3. **Individual Management**: Remove specific backups with confirmation dialogs
+4. **Bulk Operations**: Clear all backups at once with safety confirmations
+5. **Visual Organization**: Card-based display with timestamps and types
+6. **Automatic Cleanup**: Maintains only the last 5 backups per type
+7. **Import Protection**: Creates backups before any import operation
+8. **Smart Filtering**: Site-specific data excluded from exports automatically
 
 ## 🐛 Troubleshooting
 
@@ -112,13 +124,15 @@ The plugin implements a comprehensive backup strategy:
 - Check that extensions are properly installed
 
 **Import fails:**
-- Verify JSON file format
+- Verify JSON file format and content
 - Check file size (max 10MB)
 - Ensure you have administrator privileges
+- Note: Site-specific data is automatically filtered for safety
 
-**Backup not working:**
-- Check file permissions on WordPress uploads directory
+**Backup management issues:**
+- Check WordPress database permissions
 - Verify sufficient disk space
+- Individual backups can be removed if corrupted
 
 ### Getting Help
 
@@ -138,7 +152,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## 📝 License
 
-This project is licensed under the GPL v2 or later.
+This project is licensed under the GPL v2 or later - see the [LICENSE](LICENSE) file for details.
 
 ## 👨‍💻 Author
 
