@@ -1,7 +1,7 @@
 # All-in-One WP Migration Manager
 
 ![WordPress Plugin Version](https://img.shields.io/badge/WordPress-5.0%2B-blue)
-![Plugin Version](https://img.shields.io/badge/Version-3.1.0-green)
+![Plugin Version](https://img.shields.io/badge/Version-3.1.1-green)
 ![License](https://img.shields.io/badge/License-GPL%20v2-orange)
 
 Complete management solution for All-in-One WP Migration plugin - manage extension versions, export/import settings, and configure plugin options with enhanced security and backup features.
@@ -34,6 +34,7 @@ Complete management solution for All-in-One WP Migration plugin - manage extensi
 - **Enhanced Validation**: Proper file type, size, and content validation
 - **Nonce Protection**: Secure form submissions with capability checks
 - **Data Isolation**: Complete separation of local vs. transferable data
+- **WordPress Compatibility**: Isolated action handling prevents conflicts with core WordPress functions
 
 ## 📋 Requirements
 
@@ -60,6 +61,11 @@ Complete management solution for All-in-One WP Migration plugin - manage extensi
 ### Accessing the Plugin
 Navigate to **Tools → AI1WM Manager** in your WordPress admin panel.
 
+### Key Features Overview
+- **📊 Overview Tab**: System status, backup management, and inline changelog
+- **🧩 Extensions Tab**: Extension version control with dedicated backup management  
+- **⚙️ Settings Tab**: Import/export functionality with smart data filtering
+
 ### Extension Management
 1. **Create Backup**: Always backup current versions before making changes
 2. **Update Extensions**: Select extensions to update and enter new version numbers
@@ -70,10 +76,24 @@ Navigate to **Tools → AI1WM Manager** in your WordPress admin panel.
 1. **Export Settings**: Download current AI1WM configuration
    - Choose to redact sensitive data
    - Include metadata for better tracking
+   - Site-specific data automatically excluded
 2. **Import Settings**: Upload and restore AI1WM configuration
    - Automatic backup creation before import
    - Safe import with dangerous option filtering
+   - Cross-site compatibility ensured
 3. **Create Backup**: Download complete backup of current settings
+
+### Backup Management
+1. **View All Backups**: See both extension and settings backups in Overview tab
+2. **Individual Removal**: Remove specific backups with confirmation
+3. **Bulk Operations**: Clear all backups or specific types
+4. **Extension-Specific**: Manage extension backups separately in Extensions tab
+5. **Visual Organization**: Card-based display with timestamps and types
+
+### Changelog Access
+- **Built-in Changelog**: View recent updates directly in the Overview tab
+- **Visual Design**: Color-coded release types and categorized changes
+- **Version History**: Complete record of all major updates and fixes
 
 ## 📊 Supported Extensions
 
@@ -133,6 +153,12 @@ The plugin implements a comprehensive backup strategy with advanced management:
 - Check WordPress database permissions
 - Verify sufficient disk space
 - Individual backups can be removed if corrupted
+- Use Overview tab for all backup types or Extensions tab for extension-specific backups
+
+**WordPress conflicts:**
+- Plugin actions are isolated to prevent conflicts with WordPress core
+- If experiencing issues, ensure you're using the latest version (3.1.1+)
+- Conflicts with plugin updates have been resolved in recent versions
 
 ### Getting Help
 
