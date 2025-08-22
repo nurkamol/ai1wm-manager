@@ -4,6 +4,18 @@ All notable changes to the All-in-One WP Migration Manager plugin will be docume
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [3.1.1] - 2025-07-26
+
+### Fixed
+- **WordPress Core Conflict**: Resolved "Security check failed" error when updating plugins or performing bulk operations
+- **Action Handler Isolation**: Plugin now only processes its own actions, avoiding interference with WordPress core functionality
+- **Nonce Verification Scope**: Limited nonce checks to plugin-specific pages and actions only
+
+### Changed
+- **Hook Priority**: Moved admin_init hook to lower priority (20) to prevent conflicts
+- **Page-Specific Processing**: Actions only processed when on plugin's admin page
+- **Cleanup Timing**: Backup cleanup only runs on plugin pages to avoid conflicts
+
 ## [3.1.0] - 2025-07-26
 
 ### Added
