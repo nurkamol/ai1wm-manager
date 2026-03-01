@@ -4,6 +4,38 @@ All notable changes to the All-in-One WP Migration Manager plugin will be docume
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2026-03-01
+
+### Added
+- **Modular Architecture**: Complete rewrite from single file to 20-file MVC structure
+- **AJAX Operations**: All actions are now AJAX-powered — no page reloads, toast notifications
+- **Activity / Audit Log**: Custom DB table tracking every plugin action with filters and pagination
+- **Scheduled Auto-Backups**: WP-Cron integration with daily/weekly/monthly options
+- **Email Notifications**: Admin email alerts for backup creation, import, and failures
+- **Diff View Before Restore**: Color-coded modal showing added/changed/removed settings before committing
+- **Selective Restore**: Restore individual settings from a backup using a checkbox list
+- **Dry-Run Import**: Preview what will change before actually importing a JSON file
+- **WordPress Dashboard Widget**: Quick status summary with link to manager
+- **WP-CLI Support**: `wp ai1wm-manager backup-extensions|backup-settings|export-settings|list-extensions|list-backups|activity-log`
+- **Extension Search & Filter**: Real-time JS search across the extensions grid
+- **Backup Notes / Labels**: Add editable notes to any backup
+- **Extension Compatibility Check**: Warns if an extension folder isn't installed before version update
+- **Configurable Backup Limit**: Set max backups per type in Plugin Options (default: 5)
+- **Individual Backup Download**: Download any stored backup as a JSON file
+- **Settings Search**: Filter current settings list by option key
+- **i18n Support**: All user-facing strings wrapped in translation functions
+
+### Changed
+- **UI Redesign**: Professional dark sidebar layout with cards, modals, and toast notifications
+- **PHP Requirement**: Bumped to PHP 7.4+
+- **WordPress Requirement**: Bumped to WordPress 5.6+, tested up to 6.7
+- **Version**: 4.0.0
+
+### Removed
+- Single-file architecture replaced by modular MVC structure
+
+---
+
 ## [3.1.1] - 2025-07-26
 
 ### Fixed
