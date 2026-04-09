@@ -1,6 +1,6 @@
 <?php
 /**
- * Extensions tab — search, grid of extension cards with version inputs, backups.
+ * Extensions tab — table + card views with toggle.
  */
 if ( ! defined( 'ABSPATH' ) ) exit;
 
@@ -36,6 +36,14 @@ $latest_backup = ! empty( $ext_backups ) ? $ext_backups[0] : null;
         <input type="text" id="ai1wm-ext-search" class="ai1wm-search-input" placeholder="<?php esc_attr_e( 'Search extensions…', 'ai1wm-manager' ); ?>">
     </div>
     <div class="ai1wm-toolbar-right">
+        <div class="ai1wm-view-toggle" id="ai1wm-view-toggle" role="group" aria-label="<?php esc_attr_e( 'View mode', 'ai1wm-manager' ); ?>">
+            <button type="button" class="ai1wm-view-btn active" data-view="table" title="<?php esc_attr_e( 'Table view', 'ai1wm-manager' ); ?>">
+                <span class="dashicons dashicons-editor-table"></span> <?php esc_html_e( 'Table', 'ai1wm-manager' ); ?>
+            </button>
+            <button type="button" class="ai1wm-view-btn" data-view="card" title="<?php esc_attr_e( 'Card view', 'ai1wm-manager' ); ?>">
+                <span class="dashicons dashicons-grid-view"></span> <?php esc_html_e( 'Cards', 'ai1wm-manager' ); ?>
+            </button>
+        </div>
         <button type="button" class="ai1wm-btn ai1wm-btn-secondary" id="ai1wm-select-all-ext">
             <?php esc_html_e( 'Select All', 'ai1wm-manager' ); ?>
         </button>
@@ -66,63 +74,132 @@ $latest_backup = ! empty( $ext_backups ) ? $ext_backups[0] : null;
 </div>
 <?php endif; ?>
 
-<!-- Extension Cards Grid -->
-<div class="ai1wm-extensions-grid" id="ai1wm-extensions-grid">
-    <?php foreach ( $names as $prefix => $name ) :
-        $current_v   = $current_vers[ $prefix ] ?? null;
-        $default_v   = $defaults[ $prefix ] ?? '';
-        $is_installed = $installed[ $prefix ] ?? false;
-    ?>
-    <div class="ai1wm-ext-card <?php echo ! $is_installed ? 'ai1wm-ext-card--not-installed' : ''; ?>"
-         data-name="<?php echo esc_attr( strtolower( $name ) ); ?>">
-        <div class="ai1wm-ext-card-header">
-            <label class="ai1wm-ext-checkbox-label">
-                <input type="checkbox" class="ai1wm-ext-checkbox" data-prefix="<?php echo esc_attr( $prefix ); ?>">
-                <span class="ai1wm-ext-name"><?php echo esc_html( $name ); ?></span>
-            </label>
-            <div class="ai1wm-ext-status">
-                <?php if ( $is_installed ) : ?>
-                    <span class="ai1wm-badge ai1wm-badge-green" title="<?php esc_attr_e( 'Plugin folder found', 'ai1wm-manager' ); ?>">
-                        <span class="dashicons dashicons-yes"></span>
-                    </span>
-                <?php else : ?>
-                    <span class="ai1wm-badge ai1wm-badge-gray" title="<?php esc_attr_e( 'Plugin folder not found — version update will still work', 'ai1wm-manager' ); ?>">
-                        <span class="dashicons dashicons-minus"></span>
-                    </span>
-                <?php endif; ?>
-            </div>
-        </div>
-        <div class="ai1wm-ext-card-body">
-            <div class="ai1wm-ext-meta">
-                <span class="ai1wm-label"><?php esc_html_e( 'Prefix:', 'ai1wm-manager' ); ?></span>
-                <code><?php echo esc_html( $prefix ); ?></code>
-            </div>
-            <div class="ai1wm-ext-meta">
-                <span class="ai1wm-label"><?php esc_html_e( 'Current:', 'ai1wm-manager' ); ?></span>
-                <?php if ( $current_v !== null ) : ?>
-                    <strong><?php echo esc_html( $current_v ); ?></strong>
-                <?php else : ?>
-                    <span class="ai1wm-text-muted"><?php esc_html_e( 'Not in file', 'ai1wm-manager' ); ?></span>
-                <?php endif; ?>
-            </div>
-            <div class="ai1wm-ext-version-row">
-                <label class="ai1wm-label"><?php esc_html_e( 'New version:', 'ai1wm-manager' ); ?></label>
-                <input type="text"
-                       class="ai1wm-ext-version-input ai1wm-input-sm"
-                       data-prefix="<?php echo esc_attr( $prefix ); ?>"
-                       value="<?php echo esc_attr( $current_v ?? $default_v ); ?>"
-                       placeholder="e.g. 2.84"
-                       pattern="[0-9]+(\.[0-9]+)*">
+<!-- View wrapper — JS sets data-view="table|card" -->
+<div class="ai1wm-ext-view-wrap" id="ai1wm-ext-view-wrap" data-view="table">
+
+    <!-- ── Table view ──────────────────────────────────────────── -->
+    <div class="ai1wm-ext-view ai1wm-ext-view--table">
+        <div class="ai1wm-card ai1wm-ext-table-card">
+            <div class="ai1wm-card-body" style="padding:0;">
+                <div class="ai1wm-ext-table-header">
+                    <h2><?php esc_html_e( 'Step 2: Update Extension Versions', 'ai1wm-manager' ); ?></h2>
+                    <p><?php esc_html_e( 'Check the extensions you want to update and enter the new version numbers.', 'ai1wm-manager' ); ?></p>
+                </div>
+                <table class="ai1wm-ext-table">
+                    <thead>
+                        <tr>
+                            <th class="ai1wm-ext-col-check"><?php esc_html_e( 'Update', 'ai1wm-manager' ); ?></th>
+                            <th class="ai1wm-ext-col-name"><?php esc_html_e( 'Extension', 'ai1wm-manager' ); ?></th>
+                            <th class="ai1wm-ext-col-current"><?php esc_html_e( 'Current Version', 'ai1wm-manager' ); ?></th>
+                            <th class="ai1wm-ext-col-new"><?php esc_html_e( 'New Version', 'ai1wm-manager' ); ?></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ( $names as $prefix => $name ) :
+                            $current_v    = $current_vers[ $prefix ] ?? null;
+                            $default_v    = $defaults[ $prefix ] ?? '';
+                            $is_installed = $installed[ $prefix ] ?? false;
+                        ?>
+                        <tr class="ai1wm-ext-row <?php echo ! $is_installed ? 'ai1wm-ext-row--not-installed' : ''; ?>"
+                            data-name="<?php echo esc_attr( strtolower( $name ) ); ?>"
+                            data-prefix="<?php echo esc_attr( $prefix ); ?>">
+                            <td class="ai1wm-ext-col-check">
+                                <input type="checkbox" class="ai1wm-ext-checkbox" data-prefix="<?php echo esc_attr( $prefix ); ?>">
+                            </td>
+                            <td class="ai1wm-ext-col-name">
+                                <?php echo esc_html( $name ); ?>
+                                <?php if ( ! $is_installed ) : ?>
+                                    <span class="ai1wm-ext-not-installed-badge" title="<?php esc_attr_e( 'Plugin folder not found — version update will still work', 'ai1wm-manager' ); ?>">
+                                        <span class="dashicons dashicons-minus"></span>
+                                    </span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="ai1wm-ext-col-current">
+                                <?php if ( $current_v !== null ) : ?>
+                                    <?php echo esc_html( $current_v ); ?>
+                                <?php else : ?>
+                                    <span class="ai1wm-text-muted">—</span>
+                                <?php endif; ?>
+                            </td>
+                            <td class="ai1wm-ext-col-new">
+                                <input type="text"
+                                       class="ai1wm-ext-version-input"
+                                       data-prefix="<?php echo esc_attr( $prefix ); ?>"
+                                       value="<?php echo esc_attr( $current_v ?? $default_v ); ?>"
+                                       placeholder="e.g. 2.84"
+                                       pattern="[0-9]+(\.[0-9]+)*">
+                            </td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-    <?php endforeach; ?>
-</div>
 
-<div id="ai1wm-ext-no-results" class="ai1wm-empty-state" style="display:none;">
-    <span class="dashicons dashicons-search" style="font-size:3em;color:#c3c4c7;"></span>
-    <p><?php esc_html_e( 'No extensions match your search.', 'ai1wm-manager' ); ?></p>
-</div>
+    <!-- ── Card view ───────────────────────────────────────────── -->
+    <div class="ai1wm-ext-view ai1wm-ext-view--card">
+        <div class="ai1wm-extensions-grid" id="ai1wm-extensions-grid">
+            <?php foreach ( $names as $prefix => $name ) :
+                $current_v    = $current_vers[ $prefix ] ?? null;
+                $default_v    = $defaults[ $prefix ] ?? '';
+                $is_installed = $installed[ $prefix ] ?? false;
+            ?>
+            <div class="ai1wm-ext-card <?php echo ! $is_installed ? 'ai1wm-ext-card--not-installed' : ''; ?>"
+                 data-name="<?php echo esc_attr( strtolower( $name ) ); ?>"
+                 data-prefix="<?php echo esc_attr( $prefix ); ?>">
+                <div class="ai1wm-ext-card-header">
+                    <label class="ai1wm-ext-checkbox-label">
+                        <input type="checkbox" class="ai1wm-ext-checkbox" data-prefix="<?php echo esc_attr( $prefix ); ?>">
+                        <span class="ai1wm-ext-name"><?php echo esc_html( $name ); ?></span>
+                    </label>
+                    <div class="ai1wm-ext-status">
+                        <?php if ( $is_installed ) : ?>
+                            <span class="ai1wm-badge ai1wm-badge-green" title="<?php esc_attr_e( 'Plugin folder found', 'ai1wm-manager' ); ?>">
+                                <span class="dashicons dashicons-yes"></span>
+                            </span>
+                        <?php else : ?>
+                            <span class="ai1wm-badge ai1wm-badge-gray" title="<?php esc_attr_e( 'Plugin folder not found — version update will still work', 'ai1wm-manager' ); ?>">
+                                <span class="dashicons dashicons-minus"></span>
+                            </span>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <div class="ai1wm-ext-card-body">
+                    <div class="ai1wm-ext-meta">
+                        <span class="ai1wm-label"><?php esc_html_e( 'Prefix:', 'ai1wm-manager' ); ?></span>
+                        <code><?php echo esc_html( $prefix ); ?></code>
+                    </div>
+                    <div class="ai1wm-ext-meta">
+                        <span class="ai1wm-label"><?php esc_html_e( 'Current:', 'ai1wm-manager' ); ?></span>
+                        <?php if ( $current_v !== null ) : ?>
+                            <strong><?php echo esc_html( $current_v ); ?></strong>
+                        <?php else : ?>
+                            <span class="ai1wm-text-muted"><?php esc_html_e( 'Not in file', 'ai1wm-manager' ); ?></span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="ai1wm-ext-version-row">
+                        <label class="ai1wm-label"><?php esc_html_e( 'New version:', 'ai1wm-manager' ); ?></label>
+                        <input type="text"
+                               class="ai1wm-ext-version-input ai1wm-input-sm"
+                               data-prefix="<?php echo esc_attr( $prefix ); ?>"
+                               value="<?php echo esc_attr( $current_v ?? $default_v ); ?>"
+                               placeholder="e.g. 2.84"
+                               pattern="[0-9]+(\.[0-9]+)*">
+                    </div>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+    </div>
+
+    <!-- No results (shared) -->
+    <div id="ai1wm-ext-no-results" class="ai1wm-empty-state" style="display:none;">
+        <span class="dashicons dashicons-search" style="font-size:3em;color:#c3c4c7;"></span>
+        <p><?php esc_html_e( 'No extensions match your search.', 'ai1wm-manager' ); ?></p>
+    </div>
+
+</div><!-- /.ai1wm-ext-view-wrap -->
 
 <?php endif; ?>
 

@@ -616,7 +616,147 @@
   box-shadow: 0 0 0 2px rgba(34,113,177,.15);
 }
 
-/* ── Extensions Grid ────────────────────────────────────── */
+/* ── View Toggle ────────────────────────────────────────── */
+.ai1wm-view-toggle {
+  display: inline-flex;
+  border: 1px solid var(--ai1wm-card-border);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ai1wm-view-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 500;
+  background: #fff;
+  border: none;
+  border-right: 1px solid var(--ai1wm-card-border);
+  color: var(--ai1wm-text-muted);
+  cursor: pointer;
+  transition: background var(--ai1wm-transition), color var(--ai1wm-transition);
+  line-height: 1;
+}
+
+.ai1wm-view-btn:last-child { border-right: none; }
+
+.ai1wm-view-btn .dashicons {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.ai1wm-view-btn:hover {
+  background: var(--ai1wm-primary-light);
+  color: var(--ai1wm-primary);
+}
+
+.ai1wm-view-btn.active {
+  background: var(--ai1wm-primary);
+  color: #fff;
+}
+
+/* ── View wrapper ───────────────────────────────────────── */
+.ai1wm-ext-view { display: none; }
+
+[data-view="table"] .ai1wm-ext-view--table { display: block; }
+[data-view="card"]  .ai1wm-ext-view--card  { display: block; }
+
+/* ── Extensions Table ───────────────────────────────────── */
+.ai1wm-ext-table-card {
+  margin-bottom: 30px;
+}
+
+.ai1wm-ext-table-header {
+  padding: 20px 24px 14px;
+  border-bottom: 1px solid var(--ai1wm-card-border);
+}
+
+.ai1wm-ext-table-header h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--ai1wm-text);
+}
+
+.ai1wm-ext-table-header p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--ai1wm-text-muted);
+}
+
+.ai1wm-ext-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.ai1wm-ext-table thead tr {
+  background: #fafafa;
+  border-bottom: 1px solid var(--ai1wm-card-border);
+}
+
+.ai1wm-ext-table th {
+  padding: 10px 16px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--ai1wm-text-muted);
+  text-transform: uppercase;
+  letter-spacing: .04em;
+}
+
+.ai1wm-ext-table td {
+  padding: 10px 16px;
+  border-bottom: 1px solid #f0f0f1;
+  vertical-align: middle;
+}
+
+.ai1wm-ext-table tbody tr:last-child td { border-bottom: none; }
+
+.ai1wm-ext-table tbody tr:hover td { background: #f9f9f9; }
+
+.ai1wm-ext-row--not-installed { color: var(--ai1wm-text-muted); }
+
+.ai1wm-ext-col-check { width: 60px; text-align: center; }
+.ai1wm-ext-col-name  { width: auto; }
+.ai1wm-ext-col-current { width: 150px; color: var(--ai1wm-text-muted); }
+.ai1wm-ext-col-new   { width: 140px; }
+
+.ai1wm-ext-not-installed-badge {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 6px;
+  color: var(--ai1wm-text-light);
+  cursor: help;
+}
+
+.ai1wm-ext-not-installed-badge .dashicons {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+.ai1wm-ext-version-input {
+  padding: 5px 8px;
+  font-size: 13px;
+  width: 90px;
+  border: 1px solid var(--ai1wm-input-border);
+  border-radius: 4px;
+  color: var(--ai1wm-text);
+}
+
+.ai1wm-ext-version-input:focus {
+  outline: none;
+  border-color: var(--ai1wm-input-focus);
+  box-shadow: 0 0 0 2px rgba(34,113,177,.15);
+}
+
+.ai1wm-ext-row.selected td { background: var(--ai1wm-primary-light); }
+
+/* ── Extensions Card Grid ───────────────────────────────── */
 .ai1wm-extensions-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -637,9 +777,7 @@
   box-shadow: 0 2px 8px rgba(34,113,177,.12);
 }
 
-.ai1wm-ext-card--not-installed {
-  opacity: .7;
-}
+.ai1wm-ext-card--not-installed { opacity: .7; }
 
 .ai1wm-ext-card-header {
   display: flex;
@@ -659,7 +797,7 @@
   min-width: 0;
 }
 
-.ai1wm-ext-checkbox { margin: 0; flex-shrink: 0; }
+.ai1wm-ext-checkbox { margin: 0; flex-shrink: 0; cursor: pointer; }
 
 .ai1wm-ext-name {
   font-weight: 600;

@@ -617,6 +617,27 @@
     ]);
   }
 
+  // ─── View toggle (Table / Card) ──────────────────────────────────────────
+
+  function initViewToggle() {
+    const wrap = document.getElementById('ai1wm-ext-view-wrap');
+    const btns = document.querySelectorAll('#ai1wm-view-toggle .ai1wm-view-btn');
+    if (!wrap || !btns.length) return;
+
+    const saved = localStorage.getItem('ai1wm_ext_view') || 'table';
+    applyView(saved);
+
+    btns.forEach(btn => {
+      btn.addEventListener('click', () => applyView(btn.dataset.view));
+    });
+
+    function applyView(view) {
+      wrap.dataset.view = view;
+      btns.forEach(b => b.classList.toggle('active', b.dataset.view === view));
+      localStorage.setItem('ai1wm_ext_view', view);
+    }
+  }
+
   // ─── Extension search & filter ───────────────────────────────────────────
 
   function initExtensionSearch() {
@@ -625,18 +646,20 @@
 
     input.addEventListener('input', function () {
       const q = this.value.toLowerCase().trim();
-      const cards = document.querySelectorAll('.ai1wm-ext-card');
       const noResults = document.getElementById('ai1wm-ext-no-results');
       let visible = 0;
 
-      cards.forEach(card => {
-        const name = (card.dataset.name || '').toLowerCase();
-        if (!q || name.includes(q)) {
-          card.style.display = '';
-          visible++;
-        } else {
-          card.style.display = 'none';
-        }
+      // Filter table rows
+      document.querySelectorAll('.ai1wm-ext-row').forEach(row => {
+        const match = !q || (row.dataset.name || '').toLowerCase().includes(q);
+        row.style.display = match ? '' : 'none';
+        if (match) visible++;
+      });
+
+      // Filter cards (use same count source when in card view)
+      document.querySelectorAll('.ai1wm-ext-card').forEach(card => {
+        const match = !q || (card.dataset.name || '').toLowerCase().includes(q);
+        card.style.display = match ? '' : 'none';
       });
 
       if (noResults) {
@@ -653,17 +676,21 @@
       allSelected = !allSelected;
       document.querySelectorAll('.ai1wm-ext-checkbox').forEach(cb => {
         cb.checked = allSelected;
+        const row  = cb.closest('.ai1wm-ext-row');
         const card = cb.closest('.ai1wm-ext-card');
+        if (row)  row.classList.toggle('selected', allSelected);
         if (card) card.classList.toggle('selected', allSelected);
       });
       btn.textContent = allSelected ? 'Deselect All' : 'Select All';
     });
   }
 
-  // Update card selection highlight when individual checkbox changes
+  // Update selection highlight when individual checkbox changes
   document.addEventListener('change', function (e) {
     if (!e.target.classList.contains('ai1wm-ext-checkbox')) return;
+    const row  = e.target.closest('.ai1wm-ext-row');
     const card = e.target.closest('.ai1wm-ext-card');
+    if (row)  row.classList.toggle('selected', e.target.checked);
     if (card) card.classList.toggle('selected', e.target.checked);
   });
 
@@ -770,6 +797,7 @@
       });
     }
 
+    initViewToggle();
     initExtensionSearch();
     initSelectAll();
     initSettingsSearch();
