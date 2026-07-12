@@ -40,6 +40,9 @@ class AI1WM_Manager_Ajax_Handler {
             'save_options',
             'clear_activity_log',
             'get_activity_log',
+            'save_profile',
+            'apply_profile',
+            'delete_profile',
         );
 
         foreach ( $actions as $action ) {
@@ -315,6 +318,9 @@ class AI1WM_Manager_Ajax_Handler {
             'auto_backup_schedule'  => in_array( $raw['auto_backup_schedule'] ?? '', array( 'disabled', 'daily', 'weekly', 'monthly' ), true )
                                         ? $raw['auto_backup_schedule']
                                         : 'disabled',
+            'auto_backup_target'    => in_array( $raw['auto_backup_target'] ?? '', array( 'settings', 'extensions', 'both' ), true )
+                                        ? $raw['auto_backup_target']
+                                        : 'settings',
             'notifications_enabled' => ! empty( $raw['notifications_enabled'] ),
             'notification_email'    => sanitize_email( $raw['notification_email'] ?? get_option( 'admin_email' ) ),
             'notification_events'   => array_intersect(
@@ -364,6 +370,65 @@ class AI1WM_Manager_Ajax_Handler {
 
         $result = AI1WM_Manager_Activity_Log::get_entries( $args );
         wp_send_json_success( $result );
+    }
+
+    // ── Version profile actions ──────────────────────────────────────────────
+
+    public function handle_save_profile() {
+        $this->verify();
+
+        $name     = isset( $_POST['name'] ) ? sanitize_text_field( $_POST['name'] ) : '';
+        $raw_vers = isset( $_POST['versions'] ) && is_array( $_POST['versions'] ) ? $_POST['versions'] : array();
+
+        $versions = array();
+        foreach ( $raw_vers as $prefix => $version ) {
+            $versions[ strtoupper( sanitize_key( $prefix ) ) ] = sanitize_text_field( $version );
+        }
+
+        // Fall back to the current on-disk versions when none were supplied.
+        if ( empty( $versions ) ) {
+            $versions = $this->ext->get_current_versions();
+        }
+
+        $result = AI1WM_Manager_Profiles_Manager::save( $name, $versions );
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        }
+
+        wp_send_json_success( array(
+            'message' => sprintf( __( 'Profile "%s" saved.', 'ai1wm-manager' ), $result['name'] ),
+            'profile' => $result,
+        ) );
+    }
+
+    public function handle_apply_profile() {
+        $this->verify();
+
+        $id     = isset( $_POST['profile_id'] ) ? sanitize_text_field( $_POST['profile_id'] ) : '';
+        $result = AI1WM_Manager_Profiles_Manager::apply( $id );
+
+        if ( is_wp_error( $result ) ) {
+            wp_send_json_error( array( 'message' => $result->get_error_message() ) );
+        }
+
+        wp_send_json_success( array(
+            'message' => sprintf( __( 'Profile applied: %d extension(s) updated.', 'ai1wm-manager' ), $result['updated'] ),
+            'updated' => $result['updated'],
+            'errors'  => $result['errors'] ?? array(),
+            'list'    => $result['list'] ?? array(),
+        ) );
+    }
+
+    public function handle_delete_profile() {
+        $this->verify();
+
+        $id = isset( $_POST['profile_id'] ) ? sanitize_text_field( $_POST['profile_id'] ) : '';
+
+        if ( AI1WM_Manager_Profiles_Manager::delete( $id ) ) {
+            wp_send_json_success( array( 'message' => __( 'Profile deleted.', 'ai1wm-manager' ) ) );
+        } else {
+            wp_send_json_error( array( 'message' => __( 'Profile not found.', 'ai1wm-manager' ) ) );
+        }
     }
 
     // ── Upload helper ────────────────────────────────────────────────────────

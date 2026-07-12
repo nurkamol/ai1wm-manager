@@ -1,7 +1,7 @@
 # All-in-One WP Migration Manager
 
 ![WordPress Plugin Version](https://img.shields.io/badge/WordPress-5.6%2B-blue)
-![Plugin Version](https://img.shields.io/badge/Version-4.0.0-green)
+![Plugin Version](https://img.shields.io/badge/Version-4.2.0-green)
 ![PHP Version](https://img.shields.io/badge/PHP-7.4%2B-purple)
 ![License](https://img.shields.io/badge/License-GPL%20v2-orange)
 
@@ -23,7 +23,14 @@ A complete management solution for the All-in-One WP Migration plugin. Manage ex
 - Version control per extension with inline inputs
 - Installed/not-installed badge detection
 - Bulk update multiple extensions in one click
+- **Bulk action bar** — set the same version across selected extensions, or reset selected to defaults
+- **Version Profiles** — save a named set of extension versions and re-apply it in one click (auto-backs up first)
 - Backup before update, revert from backup
+
+### Health & Diagnostics Tab
+- Environment checks with pass / warning / fail status and an overall summary banner
+- Verifies All-in-One WP Migration detection, extensions-file writability, PHP/WordPress versions,
+  activity-log table, WP-Cron/auto-backup status, most-recent-backup age, and stored-backup count
 
 ### Settings Tab
 - Export AI1WM settings as a portable JSON file
@@ -45,8 +52,18 @@ A complete management solution for the All-in-One WP Migration plugin. Manage ex
 ### Plugin Options Tab
 - Configurable max backups per type (1–50, default 5)
 - Scheduled auto-backup: disabled / daily / weekly / monthly
+- **Scheduled backup target**: settings only / extension versions only / both
 - Email notifications with per-event controls (backup created, import complete, backup failed, export complete)
 - Activity log retention: 30 / 60 / 90 days or keep forever
+
+---
+
+## What's New in v4.2.0
+
+- **Health & Diagnostics tab** — one-screen environment and configuration checks
+- **Scheduled extension backups** — the auto-backup scheduler can now capture extension versions, settings, or both
+- **Bulk extension actions** — set a version across selected extensions or reset them to defaults from a contextual action bar
+- **Version Profiles** — save and re-apply named sets of extension versions (with `list-profiles` / `apply-profile` WP-CLI commands)
 
 ---
 
@@ -167,6 +184,12 @@ wp ai1wm-manager list-backups --type=extensions
 # View recent activity log entries
 wp ai1wm-manager activity-log
 wp ai1wm-manager activity-log --count=50
+
+# List saved version profiles
+wp ai1wm-manager list-profiles
+
+# Apply a version profile (auto-backs up current versions first)
+wp ai1wm-manager apply-profile profile_1700000000_123
 ```
 
 ---
@@ -216,6 +239,8 @@ ai1wm-manager/
 │   ├── class-notifications.php
 │   ├── class-ajax-handler.php
 │   ├── class-dashboard-widget.php
+│   ├── class-health-check.php       # Environment/config diagnostics
+│   ├── class-profiles-manager.php   # Saved version profiles
 │   └── class-cli.php
 ├── admin/
 │   ├── class-admin-page.php
@@ -223,6 +248,7 @@ ai1wm-manager/
 │       ├── page-overview.php
 │       ├── page-extensions.php
 │       ├── page-settings.php
+│       ├── page-health.php
 │       ├── page-activity-log.php
 │       └── page-plugin-settings.php
 ├── assets/

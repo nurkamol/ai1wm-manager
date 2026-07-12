@@ -751,6 +751,175 @@
     }
   }
 
+  // ─── Bulk extension actions ──────────────────────────────────────────────
+
+  // Collect the unique set of selected extension prefixes (both table & card views
+  // share the same data-prefix, so a Set de-duplicates them).
+  function selectedPrefixes() {
+    const set = new Set();
+    document.querySelectorAll('.ai1wm-ext-checkbox:checked').forEach(cb => {
+      if (cb.dataset.prefix) set.add(cb.dataset.prefix);
+    });
+    return Array.from(set);
+  }
+
+  // Set the value on every version input matching a prefix (table + card copies).
+  function setVersionForPrefix(prefix, value) {
+    document
+      .querySelectorAll('.ai1wm-ext-version-input[data-prefix="' + prefix + '"]')
+      .forEach(input => { input.value = value; });
+  }
+
+  function updateBulkBar() {
+    const bar = document.getElementById('ai1wm-bulk-bar');
+    if (!bar) return;
+    const prefixes = selectedPrefixes();
+    const countEl = document.getElementById('ai1wm-bulk-count');
+    if (countEl) countEl.textContent = prefixes.length;
+    bar.style.display = prefixes.length ? '' : 'none';
+  }
+
+  function initBulkBar() {
+    const bar = document.getElementById('ai1wm-bulk-bar');
+    if (!bar) return;
+
+    updateBulkBar();
+
+    const applyBtn = document.getElementById('ai1wm-bulk-apply-version');
+    if (applyBtn) {
+      applyBtn.addEventListener('click', () => {
+        const input = document.getElementById('ai1wm-bulk-version');
+        const value = (input?.value || '').trim();
+        if (!value) { warning('Enter a version number first.'); return; }
+        if (!/^[0-9]+(\.[0-9]+)*$/.test(value)) { warning('Invalid version format.'); return; }
+        const prefixes = selectedPrefixes();
+        if (!prefixes.length) { warning('No extensions selected.'); return; }
+        prefixes.forEach(p => setVersionForPrefix(p, value));
+        success(prefixes.length + ' extension(s) set to ' + value + '. Click "Update Selected" to apply.');
+      });
+    }
+
+    const resetBtn = document.getElementById('ai1wm-bulk-reset-defaults');
+    if (resetBtn) {
+      resetBtn.addEventListener('click', () => {
+        const prefixes = selectedPrefixes();
+        if (!prefixes.length) { warning('No extensions selected.'); return; }
+        prefixes.forEach(p => {
+          const anyInput = document.querySelector('.ai1wm-ext-version-input[data-prefix="' + p + '"]');
+          const def = anyInput ? (anyInput.dataset.default || '') : '';
+          setVersionForPrefix(p, def);
+        });
+        success(prefixes.length + ' extension(s) reset to default versions.');
+      });
+    }
+  }
+
+  // Refresh the bulk bar whenever a selection changes.
+  document.addEventListener('change', function (e) {
+    if (e.target.classList && e.target.classList.contains('ai1wm-ext-checkbox')) {
+      updateBulkBar();
+    }
+  });
+  // Select All / Deselect All also affects the bulk bar.
+  document.addEventListener('click', function (e) {
+    if (e.target && e.target.id === 'ai1wm-select-all-ext') {
+      setTimeout(updateBulkBar, 0);
+    }
+  });
+
+  // ─── Version Profiles ────────────────────────────────────────────────────
+
+  // Gather the full current version map from the inputs (deduped by prefix).
+  function collectVersions() {
+    const versions = {};
+    document.querySelectorAll('.ai1wm-ext-version-input').forEach(input => {
+      const prefix = input.dataset.prefix;
+      const value  = (input.value || '').trim();
+      if (prefix && value && !(prefix in versions)) {
+        versions[prefix] = value;
+      }
+    });
+    return versions;
+  }
+
+  function handleSaveProfile() {
+    const versions = collectVersions();
+    if (!Object.keys(versions).length) {
+      warning('No extension versions available to save.');
+      return;
+    }
+
+    modalOpen(
+      'Save Version Profile',
+      '<div class="ai1wm-field">' +
+        '<label class="ai1wm-label" for="ai1wm-profile-name">Profile name</label>' +
+        '<input type="text" id="ai1wm-profile-name" class="ai1wm-input" style="width:100%;margin-top:6px;" ' +
+          'maxlength="100" placeholder="e.g. Prod known-good">' +
+        '<p class="ai1wm-field-desc" style="margin-top:8px;">Captures the ' + Object.keys(versions).length +
+          ' version number(s) currently shown in the table.</p>' +
+      '</div>',
+      [
+        { label: 'Cancel', cls: 'ai1wm-btn-ghost', onClick: () => modalClose() },
+        {
+          label: 'Save Profile',
+          cls: 'ai1wm-btn-primary',
+          onClick: () => {
+            const name = (document.getElementById('ai1wm-profile-name').value || '').trim();
+            if (!name) { warning('Please enter a profile name.'); return; }
+            const saveBtn = document.querySelector('#ai1wm-modal-footer .ai1wm-btn-primary');
+            if (saveBtn) setLoading(saveBtn, true);
+
+            ajax('save_profile', { name }, { nested: { versions } })
+              .then(data => {
+                modalClose();
+                success(data.message);
+                setTimeout(() => location.reload(), 800);
+              })
+              .catch(err => { error(err.message); if (saveBtn) setLoading(saveBtn, false); });
+          },
+        },
+      ]
+    );
+
+    setTimeout(() => {
+      const input = document.getElementById('ai1wm-profile-name');
+      if (input) input.focus();
+    }, 100);
+  }
+
+  function handleApplyProfile(btn, id, name) {
+    const msg = (i18n.confirmApplyProfile || 'Apply this profile? Current versions will be backed up first.') +
+      (name ? '\n\nProfile: ' + name : '');
+    if (!confirm(msg)) return;
+    setLoading(btn, true);
+    ajax('apply_profile', { profile_id: id })
+      .then(data => {
+        if (data.errors && data.errors.length) data.errors.forEach(e => error(e));
+        success(data.message);
+        setTimeout(() => location.reload(), 1000);
+      })
+      .catch(err => { error(err.message); setLoading(btn, false); });
+  }
+
+  function handleDeleteProfile(btn, id) {
+    if (!confirm(i18n.confirmDeleteProfile || 'Delete this profile? This cannot be undone.')) return;
+    setLoading(btn, true);
+    ajax('delete_profile', { profile_id: id })
+      .then(data => {
+        success(data.message);
+        const item = btn.closest('.ai1wm-profile-item');
+        if (item) item.remove();
+        // Show the empty state if no profiles remain.
+        const list = document.getElementById('ai1wm-profile-list');
+        if (list && !list.querySelector('.ai1wm-profile-item')) {
+          list.style.display = 'none';
+          const empty = document.getElementById('ai1wm-profile-empty');
+          if (empty) empty.style.display = '';
+        }
+      })
+      .catch(err => { error(err.message); setLoading(btn, false); });
+  }
+
   // ─── Delegated click handler ─────────────────────────────────────────────
 
   document.addEventListener('click', function (e) {
@@ -762,6 +931,8 @@
     const key    = btn.dataset.key || '';
     const type   = btn.dataset.type || 'all';
     const note   = btn.dataset.note || '';
+    const id     = btn.dataset.id || '';
+    const name   = btn.dataset.name || '';
 
     switch (action) {
       case 'backupExtensions':   handleBackupExtensions(btn); break;
@@ -777,6 +948,9 @@
       case 'downloadBackup':     handleDownloadBackup(btn, key); break;
       case 'saveOptions':        handleSaveOptions(btn); break;
       case 'clearActivityLog':   handleClearActivityLog(btn); break;
+      case 'saveProfile':        handleSaveProfile(); break;
+      case 'applyProfile':       handleApplyProfile(btn, id, name); break;
+      case 'deleteProfile':      handleDeleteProfile(btn, id); break;
     }
   });
 
@@ -802,6 +976,7 @@
     initSelectAll();
     initSettingsSearch();
     initFileInput();
+    initBulkBar();
   });
 
   // ─── Utilities ───────────────────────────────────────────────────────────

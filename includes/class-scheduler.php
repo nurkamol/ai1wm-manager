@@ -40,8 +40,26 @@ class AI1WM_Manager_Scheduler {
 
     /**
      * Execute the scheduled backup.
+     *
+     * Honours the configured backup target (settings, extensions, or both).
      */
     public function run_scheduled_backup() {
+        $options = get_option( 'ai1wm_manager_options', array() );
+        $target  = isset( $options['auto_backup_target'] ) ? $options['auto_backup_target'] : 'settings';
+
+        if ( $target === 'settings' || $target === 'both' ) {
+            $this->run_scheduled_settings_backup();
+        }
+
+        if ( $target === 'extensions' || $target === 'both' ) {
+            $this->run_scheduled_extension_backup();
+        }
+    }
+
+    /**
+     * Create a scheduled settings backup.
+     */
+    private function run_scheduled_settings_backup() {
         $settings_manager = new AI1WM_Manager_Settings_Manager();
         $settings         = $settings_manager->get_settings( false );
 
@@ -64,6 +82,31 @@ class AI1WM_Manager_Scheduler {
         } else {
             AI1WM_Manager_Notifications::send( 'backup_failed', array(
                 'type'   => 'Scheduled Settings Backup',
+                'reason' => 'Could not save backup to database.',
+            ) );
+        }
+    }
+
+    /**
+     * Create a scheduled extension-versions backup.
+     */
+    private function run_scheduled_extension_backup() {
+        $ext = new AI1WM_Manager_Extensions_Manager();
+
+        if ( ! $ext->extensions_file_exists() ) {
+            AI1WM_Manager_Notifications::send( 'backup_failed', array(
+                'type'   => 'Scheduled Extension Backup',
+                'reason' => 'All-in-One WP Migration extensions file not found.',
+            ) );
+            return;
+        }
+
+        // Extensions_Manager::backup() already logs + notifies on success.
+        $key = $ext->backup( __( 'Auto-backup (scheduled)', 'ai1wm-manager' ) );
+
+        if ( ! $key ) {
+            AI1WM_Manager_Notifications::send( 'backup_failed', array(
+                'type'   => 'Scheduled Extension Backup',
                 'reason' => 'Could not save backup to database.',
             ) );
         }

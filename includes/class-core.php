@@ -119,6 +119,8 @@ class AI1WM_Manager_Core {
                 'confirmRevert'    => __( 'Are you sure you want to revert extensions to this backup?', 'ai1wm-manager' ),
                 'confirmRestore'   => __( 'Are you sure you want to restore these settings?', 'ai1wm-manager' ),
                 'confirmClearLog'  => __( 'Are you sure you want to clear the entire activity log?', 'ai1wm-manager' ),
+                'confirmApplyProfile'  => __( 'Apply this version profile? Your current versions will be backed up first.', 'ai1wm-manager' ),
+                'confirmDeleteProfile' => __( 'Are you sure you want to delete this profile? This cannot be undone.', 'ai1wm-manager' ),
                 'saving'           => __( 'Saving…', 'ai1wm-manager' ),
                 'loading'          => __( 'Loading…', 'ai1wm-manager' ),
             ),

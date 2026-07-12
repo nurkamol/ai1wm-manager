@@ -4,6 +4,17 @@ All notable changes to the All-in-One WP Migration Manager plugin will be docume
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.2.0] - 2026-07-13
+
+### Added
+- **Health & Diagnostics Tab**: New sidebar tab that runs environment and configuration checks — All-in-One WP Migration detection, extensions file writability, PHP/WordPress versions, activity-log table, WP-Cron/auto-backup status, most-recent-backup age, and stored-backup count — each with a pass/warning/fail status and an overall summary banner.
+- **Scheduled Extension Backups**: The auto-backup scheduler can now back up extension versions in addition to settings. A new "What to Back Up" option (Settings only / Extension versions only / Both) controls the scheduled target.
+- **Bulk Extension Actions**: A contextual bulk action bar appears when one or more extensions are selected — set the same version across all selected extensions at once, or reset selected extensions to their default versions. Works in both table and card views.
+- **Version Profiles**: Save a named set of extension versions and re-apply it in one click — ideal for rolling back to a known-good combination. Applying a profile auto-backs up current versions first. Managed from the Extensions tab, with `list-profiles` and `apply-profile` WP-CLI commands.
+
+### Changed
+- Scheduled Auto-Backup card copy now reflects the configurable backup target.
+
 ## [4.0.0] - 2026-03-01
 
 ### Added

@@ -58,6 +58,30 @@ $latest_backup = ! empty( $ext_backups ) ? $ext_backups[0] : null;
     </div>
 </div>
 
+<!-- Bulk action bar — shown by JS when one or more extensions are selected -->
+<div class="ai1wm-bulk-bar" id="ai1wm-bulk-bar" style="display:none;">
+    <div class="ai1wm-bulk-bar-info">
+        <span class="dashicons dashicons-yes"></span>
+        <span id="ai1wm-bulk-count">0</span> <?php esc_html_e( 'selected', 'ai1wm-manager' ); ?>
+    </div>
+    <div class="ai1wm-bulk-bar-actions">
+        <div class="ai1wm-bulk-apply">
+            <input type="text" id="ai1wm-bulk-version" class="ai1wm-input ai1wm-input-sm"
+                   placeholder="<?php esc_attr_e( 'e.g. 2.84', 'ai1wm-manager' ); ?>"
+                   pattern="[0-9]+(\.[0-9]+)*">
+            <button type="button" class="ai1wm-btn ai1wm-btn-secondary ai1wm-btn-sm" id="ai1wm-bulk-apply-version">
+                <?php esc_html_e( 'Set version for selected', 'ai1wm-manager' ); ?>
+            </button>
+        </div>
+        <button type="button" class="ai1wm-btn ai1wm-btn-ghost ai1wm-btn-sm" id="ai1wm-bulk-reset-defaults">
+            <span class="dashicons dashicons-image-rotate"></span> <?php esc_html_e( 'Reset selected to defaults', 'ai1wm-manager' ); ?>
+        </button>
+        <button type="button" class="ai1wm-btn ai1wm-btn-ghost ai1wm-btn-sm" data-action="saveProfile">
+            <span class="dashicons dashicons-star-filled"></span> <?php esc_html_e( 'Save as profile', 'ai1wm-manager' ); ?>
+        </button>
+    </div>
+</div>
+
 <?php if ( $latest_backup ) : ?>
 <div class="ai1wm-alert ai1wm-alert-info">
     <span class="dashicons dashicons-backup"></span>
@@ -125,6 +149,7 @@ $latest_backup = ! empty( $ext_backups ) ? $ext_backups[0] : null;
                                 <input type="text"
                                        class="ai1wm-ext-version-input"
                                        data-prefix="<?php echo esc_attr( $prefix ); ?>"
+                                       data-default="<?php echo esc_attr( $default_v ); ?>"
                                        value="<?php echo esc_attr( $current_v ?? $default_v ); ?>"
                                        placeholder="e.g. 2.84"
                                        pattern="[0-9]+(\.[0-9]+)*">
@@ -183,6 +208,7 @@ $latest_backup = ! empty( $ext_backups ) ? $ext_backups[0] : null;
                         <input type="text"
                                class="ai1wm-ext-version-input ai1wm-input-sm"
                                data-prefix="<?php echo esc_attr( $prefix ); ?>"
+                               data-default="<?php echo esc_attr( $default_v ); ?>"
                                value="<?php echo esc_attr( $current_v ?? $default_v ); ?>"
                                placeholder="e.g. 2.84"
                                pattern="[0-9]+(\.[0-9]+)*">
@@ -200,6 +226,58 @@ $latest_backup = ! empty( $ext_backups ) ? $ext_backups[0] : null;
     </div>
 
 </div><!-- /.ai1wm-ext-view-wrap -->
+
+<!-- Version Profiles -->
+<?php $profiles = AI1WM_Manager_Profiles_Manager::get_all(); ?>
+<div class="ai1wm-card" style="margin-top:30px;" id="ai1wm-profiles-card">
+    <div class="ai1wm-card-header">
+        <h2 class="ai1wm-card-title"><span class="dashicons dashicons-star-filled"></span> <?php esc_html_e( 'Version Profiles', 'ai1wm-manager' ); ?></h2>
+        <button type="button" class="ai1wm-btn ai1wm-btn-secondary ai1wm-btn-sm" data-action="saveProfile" data-source="current">
+            <span class="dashicons dashicons-plus-alt2"></span> <?php esc_html_e( 'Save current versions', 'ai1wm-manager' ); ?>
+        </button>
+    </div>
+    <div class="ai1wm-card-body">
+        <p class="ai1wm-field-desc" style="margin-top:0;">
+            <?php esc_html_e( 'Save a named set of extension versions and re-apply it in one click — handy for rolling back to a known-good combination.', 'ai1wm-manager' ); ?>
+        </p>
+        <div class="ai1wm-profile-list" id="ai1wm-profile-list" <?php echo empty( $profiles ) ? 'style="display:none;"' : ''; ?>>
+            <?php foreach ( $profiles as $profile ) : ?>
+            <div class="ai1wm-profile-item" data-id="<?php echo esc_attr( $profile['id'] ); ?>">
+                <div class="ai1wm-profile-icon">
+                    <span class="dashicons dashicons-star-filled"></span>
+                </div>
+                <div class="ai1wm-profile-meta">
+                    <div class="ai1wm-profile-name"><?php echo esc_html( $profile['name'] ); ?></div>
+                    <div class="ai1wm-profile-sub">
+                        <?php
+                        printf(
+                            esc_html( _n( '%1$d extension · saved %2$s', '%1$d extensions · saved %2$s', count( $profile['versions'] ), 'ai1wm-manager' ) ),
+                            count( $profile['versions'] ),
+                            esc_html( date_i18n( 'M j, Y', $profile['created_at'] ) )
+                        );
+                        ?>
+                    </div>
+                </div>
+                <div class="ai1wm-profile-actions">
+                    <button type="button" class="ai1wm-btn ai1wm-btn-primary ai1wm-btn-sm"
+                            data-action="applyProfile" data-id="<?php echo esc_attr( $profile['id'] ); ?>"
+                            data-name="<?php echo esc_attr( $profile['name'] ); ?>">
+                        <span class="dashicons dashicons-yes"></span> <?php esc_html_e( 'Apply', 'ai1wm-manager' ); ?>
+                    </button>
+                    <button type="button" class="ai1wm-btn ai1wm-btn-danger ai1wm-btn-sm"
+                            data-action="deleteProfile" data-id="<?php echo esc_attr( $profile['id'] ); ?>">
+                        <span class="dashicons dashicons-trash"></span>
+                    </button>
+                </div>
+            </div>
+            <?php endforeach; ?>
+        </div>
+        <div class="ai1wm-empty-state ai1wm-profile-empty" id="ai1wm-profile-empty" <?php echo empty( $profiles ) ? '' : 'style="display:none;"'; ?>>
+            <span class="dashicons dashicons-star-empty" style="font-size:2.4em;color:#c3c4c7;"></span>
+            <p><?php esc_html_e( 'No profiles saved yet.', 'ai1wm-manager' ); ?></p>
+        </div>
+    </div>
+</div>
 
 <?php endif; ?>
 

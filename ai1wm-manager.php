@@ -3,7 +3,7 @@
  * Plugin Name: All-in-One WP Migration Manager
  * Plugin URI: https://github.com/nurkamol/ai1wm-manager
  * Description: Professional management solution for All-in-One WP Migration — extension version control, settings export/import, scheduled backups, activity log, AJAX operations, WP-CLI support and more.
- * Version: 4.1.0
+ * Version: 4.2.0
  * Author: Nurkamol Vakhidov
  * Author URI: https://nurkamol.com
  * Requires at least: 5.6
@@ -20,7 +20,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 // Plugin constants
-defined( 'AI1WM_MANAGER_VERSION' ) || define( 'AI1WM_MANAGER_VERSION', '4.1.0' );
+defined( 'AI1WM_MANAGER_VERSION' ) || define( 'AI1WM_MANAGER_VERSION', '4.2.0' );
 defined( 'AI1WM_MANAGER_FILE'    ) || define( 'AI1WM_MANAGER_FILE',    __FILE__ );
 defined( 'AI1WM_MANAGER_DIR'     ) || define( 'AI1WM_MANAGER_DIR',     plugin_dir_path( __FILE__ ) );
 defined( 'AI1WM_MANAGER_URL'     ) || define( 'AI1WM_MANAGER_URL',     plugin_dir_url( __FILE__ ) );

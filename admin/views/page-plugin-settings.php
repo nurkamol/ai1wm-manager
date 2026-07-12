@@ -46,7 +46,7 @@ $events   = AI1WM_Manager_Notifications::EVENTS;
         <div class="ai1wm-form-row">
             <div class="ai1wm-form-label">
                 <label><?php esc_html_e( 'Schedule', 'ai1wm-manager' ); ?></label>
-                <p class="ai1wm-field-desc"><?php esc_html_e( 'Automatically create a settings backup on the chosen interval.', 'ai1wm-manager' ); ?></p>
+                <p class="ai1wm-field-desc"><?php esc_html_e( 'Automatically create a backup on the chosen interval.', 'ai1wm-manager' ); ?></p>
             </div>
             <div class="ai1wm-form-control">
                 <div class="ai1wm-radio-group">
@@ -65,6 +65,25 @@ $events   = AI1WM_Manager_Notifications::EVENTS;
                     <?php echo esc_html( $next_run ); ?>
                 </p>
                 <?php endif; ?>
+            </div>
+        </div>
+
+        <div class="ai1wm-form-row">
+            <div class="ai1wm-form-label">
+                <label><?php esc_html_e( 'What to Back Up', 'ai1wm-manager' ); ?></label>
+                <p class="ai1wm-field-desc"><?php esc_html_e( 'Choose what the scheduled backup should capture.', 'ai1wm-manager' ); ?></p>
+            </div>
+            <div class="ai1wm-form-control">
+                <div class="ai1wm-radio-group">
+                    <?php foreach ( array( 'settings' => __( 'Settings only', 'ai1wm-manager' ), 'extensions' => __( 'Extension versions only', 'ai1wm-manager' ), 'both' => __( 'Both', 'ai1wm-manager' ) ) as $val => $label ) : ?>
+                    <label class="ai1wm-radio">
+                        <input type="radio" name="options[auto_backup_target]"
+                               value="<?php echo esc_attr( $val ); ?>"
+                               <?php checked( $options['auto_backup_target'] ?? 'settings', $val ); ?>>
+                        <span><?php echo esc_html( $label ); ?></span>
+                    </label>
+                    <?php endforeach; ?>
+                </div>
             </div>
         </div>
     </div>

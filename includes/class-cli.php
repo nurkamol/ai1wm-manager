@@ -203,6 +203,70 @@ class AI1WM_Manager_CLI {
         WP_CLI\Utils\format_items( 'table', $rows, array( 'Date', 'User', 'Action', 'Description' ) );
         WP_CLI::log( sprintf( 'Showing %d of %d entries.', count( $rows ), $result['total'] ) );
     }
+
+    /**
+     * List saved version profiles.
+     *
+     * ## EXAMPLES
+     *
+     *     wp ai1wm-manager list-profiles
+     *
+     * @subcommand list-profiles
+     */
+    public function list_profiles( $args, $assoc_args ) {
+        $profiles = AI1WM_Manager_Profiles_Manager::get_all();
+
+        if ( empty( $profiles ) ) {
+            WP_CLI::warning( 'No version profiles saved.' );
+            return;
+        }
+
+        $rows = array();
+        foreach ( $profiles as $profile ) {
+            $rows[] = array(
+                'ID'         => $profile['id'],
+                'Name'       => $profile['name'],
+                'Extensions' => count( $profile['versions'] ),
+                'Created'    => date_i18n( 'Y-m-d H:i', $profile['created_at'] ),
+            );
+        }
+
+        WP_CLI\Utils\format_items( 'table', $rows, array( 'ID', 'Name', 'Extensions', 'Created' ) );
+    }
+
+    /**
+     * Apply a saved version profile to the extensions file.
+     *
+     * Current versions are backed up automatically before the profile is applied.
+     *
+     * ## OPTIONS
+     *
+     * <id>
+     * : The profile id (see `wp ai1wm-manager list-profiles`).
+     *
+     * ## EXAMPLES
+     *
+     *     wp ai1wm-manager apply-profile profile_1700000000_123
+     *
+     * @subcommand apply-profile
+     */
+    public function apply_profile( $args, $assoc_args ) {
+        $id = isset( $args[0] ) ? $args[0] : '';
+        if ( $id === '' ) {
+            WP_CLI::error( 'Please provide a profile id.' );
+        }
+
+        $result = AI1WM_Manager_Profiles_Manager::apply( $id );
+        if ( is_wp_error( $result ) ) {
+            WP_CLI::error( $result->get_error_message() );
+        }
+
+        foreach ( (array) ( $result['errors'] ?? array() ) as $err ) {
+            WP_CLI::warning( $err );
+        }
+
+        WP_CLI::success( sprintf( 'Profile applied: %d extension(s) updated.', $result['updated'] ) );
+    }
 }
 
 WP_CLI::add_command( 'ai1wm-manager', 'AI1WM_Manager_CLI' );

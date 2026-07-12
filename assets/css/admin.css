@@ -1437,3 +1437,121 @@
 .toplevel_page_ai1wm-manager .wrap > h1:first-child {
   display: none;
 }
+
+/* ─── Health / Diagnostics tab ─────────────────────────────────────────────── */
+.ai1wm-health-banner {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  border-radius: var(--ai1wm-card-radius);
+  border: 1px solid var(--ai1wm-card-border);
+  margin-bottom: 20px;
+  background: var(--ai1wm-card-bg);
+}
+.ai1wm-health-banner .dashicons {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+}
+.ai1wm-health-banner-text { display: flex; flex-direction: column; line-height: 1.4; }
+.ai1wm-health-banner-text strong { font-size: 15px; }
+.ai1wm-health-banner-text span { font-size: 12px; color: var(--ai1wm-text-muted); }
+.ai1wm-health-banner--ok      { border-left: 4px solid var(--ai1wm-success); }
+.ai1wm-health-banner--ok .dashicons      { color: var(--ai1wm-success); }
+.ai1wm-health-banner--warning { border-left: 4px solid var(--ai1wm-warning); }
+.ai1wm-health-banner--warning .dashicons { color: var(--ai1wm-warning); }
+.ai1wm-health-banner--error   { border-left: 4px solid var(--ai1wm-danger); }
+.ai1wm-health-banner--error .dashicons   { color: var(--ai1wm-danger); }
+
+.ai1wm-health-list { display: flex; flex-direction: column; }
+.ai1wm-health-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #f0f0f1;
+}
+.ai1wm-health-row:last-child { border-bottom: none; }
+.ai1wm-health-status {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ai1wm-health-status .dashicons { font-size: 22px; width: 22px; height: 22px; }
+.ai1wm-health-row--ok      .ai1wm-health-status .dashicons { color: var(--ai1wm-success); }
+.ai1wm-health-row--warning .ai1wm-health-status .dashicons { color: var(--ai1wm-warning); }
+.ai1wm-health-row--error   .ai1wm-health-status .dashicons { color: var(--ai1wm-danger); }
+.ai1wm-health-main { flex: 1; min-width: 0; }
+.ai1wm-health-label { font-weight: 600; font-size: 13.5px; }
+.ai1wm-health-message { font-size: 12px; color: var(--ai1wm-text-muted); margin-top: 2px; }
+.ai1wm-health-value {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ai1wm-text);
+  background: #f6f7f7;
+  border-radius: 4px;
+  padding: 4px 10px;
+  white-space: nowrap;
+}
+.ai1wm-health-row--warning .ai1wm-health-value { background: var(--ai1wm-warning-bg); color: #8a6d1a; }
+.ai1wm-health-row--error   .ai1wm-health-value { background: var(--ai1wm-danger-bg);  color: var(--ai1wm-danger); }
+
+/* ─── Bulk action bar (Extensions) ─────────────────────────────────────────── */
+.ai1wm-bulk-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  background: var(--ai1wm-primary-light);
+  border: 1px solid var(--ai1wm-primary);
+  border-radius: 6px;
+}
+.ai1wm-bulk-bar-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: var(--ai1wm-primary-dark);
+}
+.ai1wm-bulk-bar-info .dashicons { font-size: 18px; width: 18px; height: 18px; }
+.ai1wm-bulk-bar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.ai1wm-bulk-apply { display: flex; align-items: center; gap: 6px; }
+.ai1wm-bulk-apply .ai1wm-input-sm { width: 110px; }
+
+/* ─── Version Profiles ─────────────────────────────────────────────────────── */
+.ai1wm-profile-list { display: flex; flex-direction: column; gap: 10px; }
+.ai1wm-profile-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px;
+  background: #fafafa;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  transition: border-color var(--ai1wm-transition);
+}
+.ai1wm-profile-item:hover { border-color: var(--ai1wm-card-border); }
+.ai1wm-profile-icon {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--ai1wm-primary-light);
+}
+.ai1wm-profile-icon .dashicons { color: var(--ai1wm-primary); font-size: 18px; width: 18px; height: 18px; }
+.ai1wm-profile-meta { flex: 1; min-width: 0; }
+.ai1wm-profile-name { font-weight: 600; font-size: 13.5px; }
+.ai1wm-profile-sub { font-size: 12px; color: var(--ai1wm-text-muted); margin-top: 2px; }
+.ai1wm-profile-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }

@@ -91,6 +91,7 @@ class AI1WM_Manager_Installer {
         return array(
             'backup_limit'          => 5,
             'auto_backup_schedule'  => 'disabled',
+            'auto_backup_target'    => 'settings',
             'notifications_enabled' => false,
             'notification_email'    => get_option( 'admin_email', '' ),
             'notification_events'   => array( 'backup_created', 'import_complete', 'backup_failed' ),

@@ -31,7 +31,7 @@ class AI1WM_Manager_Admin_Page {
         }
 
         $active_tab = isset( $_GET['tab'] ) ? sanitize_key( $_GET['tab'] ) : 'overview';
-        $valid_tabs = array( 'overview', 'extensions', 'settings', 'activity-log', 'plugin-settings' );
+        $valid_tabs = array( 'overview', 'extensions', 'settings', 'health', 'activity-log', 'plugin-settings' );
         if ( ! in_array( $active_tab, $valid_tabs, true ) ) {
             $active_tab = 'overview';
         }
@@ -40,6 +40,7 @@ class AI1WM_Manager_Admin_Page {
             'overview'        => array( 'icon' => 'dashicons-chart-bar',       'label' => __( 'Overview', 'ai1wm-manager' ) ),
             'extensions'      => array( 'icon' => 'dashicons-admin-plugins',   'label' => __( 'Extensions', 'ai1wm-manager' ) ),
             'settings'        => array( 'icon' => 'dashicons-admin-settings',  'label' => __( 'Settings', 'ai1wm-manager' ) ),
+            'health'          => array( 'icon' => 'dashicons-heart',           'label' => __( 'Health', 'ai1wm-manager' ) ),
             'activity-log'    => array( 'icon' => 'dashicons-list-view',       'label' => __( 'Activity Log', 'ai1wm-manager' ) ),
             'plugin-settings' => array( 'icon' => 'dashicons-admin-generic',   'label' => __( 'Plugin Options', 'ai1wm-manager' ) ),
         );
